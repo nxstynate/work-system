@@ -1,6 +1,6 @@
 # Work Notes System
 
-A markdown-first, keyboard-driven work organization system for Neovim + WezTerm + PowerShell + GlazeWM.
+A markdown-first, keyboard-driven work organization system for Neovim + WezTerm + PowerShell. 
 
 ## Quick Start
 
@@ -60,9 +60,7 @@ for name, tbl in pairs(work.key_tables) do
 end
 ```
 
-### 5. Configure GlazeWM
 
-Merge contents of `glazewm-work.yaml` into your `~/.glaze-wm/config.yaml`.
 
 ## Directory Structure
 
@@ -119,17 +117,6 @@ All three tools use the same key sequences after their respective leader/prefix:
 | `<Space><Space>` | Quick access to today's note |
 | `<Space>wil` | Insert person link at cursor |
 
-### GlazeWM Workspaces
-
-| Workspace | Key | Purpose |
-|-----------|-----|---------|
-| 1 | `Alt+1` / `Alt+N` | Notes/Neovim |
-| 2 | `Alt+2` / `Alt+T` | Teams |
-| 3 | `Alt+3` / `Alt+E` | Outlook |
-| 4 | `Alt+4` / `Alt+B` | Browser |
-| 5 | `Alt+5` | Files |
-| 6 | `Alt+6` | Project |
-| 7 | `Alt+7` / `Alt+R` | Render/Blender |
 
 ## Task Rollover
 
