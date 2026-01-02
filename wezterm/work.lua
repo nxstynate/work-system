@@ -68,7 +68,7 @@ function M.apply(config)
                 window:perform_action(
                     act.SpawnCommandInNewTab({
                         args = { "pwsh", "-NoProfile", "-Command",
-                            string.format("cd '%s'; nvim -c 'Telescope live_grep'", work_root)
+                            string.format("cd '%s'; nvim -c 'lua vim.defer_fn(function() vim.cmd(\"Telescope live_grep\") end, 0)'", work_root)
                         },
                     }),
                     pane
@@ -87,7 +87,7 @@ function M.apply(config)
                 window:perform_action(
                     act.SpawnCommandInNewTab({
                         args = { "pwsh", "-NoProfile", "-Command",
-                            string.format("cd '%s'; nvim -c 'Telescope find_files'", work_root)
+                            string.format("cd '%s'; nvim -c 'lua vim.defer_fn(function() vim.cmd(\"Telescope find_files\") end, 0)'", work_root)
                         },
                     }),
                     pane
@@ -106,7 +106,7 @@ function M.apply(config)
                 window:perform_action(
                     act.SpawnCommandInNewTab({
                         args = { "pwsh", "-NoProfile", "-Command",
-                            string.format("cd '%s/02_projects'; nvim -c 'Telescope find_files'", work_root)
+                            string.format("cd '%s/02_projects'; nvim -c 'lua vim.defer_fn(function() vim.cmd(\"Telescope find_files\") end, 0)'", work_root)
                         },
                     }),
                     pane
@@ -125,7 +125,7 @@ function M.apply(config)
                 window:perform_action(
                     act.SpawnCommandInNewTab({
                         args = { "pwsh", "-NoProfile", "-Command",
-                            string.format("cd '%s/03_people'; nvim -c 'Telescope find_files'", work_root)
+                            string.format("cd '%s/03_people'; nvim -c 'lua vim.defer_fn(function() vim.cmd(\"Telescope find_files\") end, 0)'", work_root)
                         },
                     }),
                     pane
@@ -144,7 +144,7 @@ function M.apply(config)
                 window:perform_action(
                     act.SpawnCommandInNewTab({
                         args = { "pwsh", "-NoProfile", "-Command",
-                            string.format("cd '%s/04_meetings'; nvim -c 'Telescope find_files'", work_root)
+                            string.format("cd '%s/04_meetings'; nvim -c 'lua vim.defer_fn(function() vim.cmd(\"Telescope find_files\") end, 0)'", work_root)
                         },
                     }),
                     pane
@@ -163,7 +163,7 @@ function M.apply(config)
                 window:perform_action(
                     act.SpawnCommandInNewTab({
                         args = { "pwsh", "-NoProfile", "-Command",
-                            string.format("cd '%s/01_today'; nvim -c 'Telescope find_files'", work_root)
+                            string.format("cd '%s/01_today'; nvim -c 'lua vim.defer_fn(function() vim.cmd(\"Telescope find_files\") end, 0)'", work_root)
                         },
                     }),
                     pane
