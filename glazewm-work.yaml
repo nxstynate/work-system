@@ -1,0 +1,162 @@
+# glazewm-work.yaml
+# GlazeWM workspace configuration for work system
+# Merge into your glazewm/config.yaml
+
+# Workspace definitions with semantic naming
+workspaces:
+  - name: "1"
+    display_name: "Notes"
+    # Primary workspace for Neovim/notes
+    
+  - name: "2"
+    display_name: "Teams"
+    # Microsoft Teams
+    
+  - name: "3"
+    display_name: "Outlook"
+    # Email and calendar
+    
+  - name: "4"
+    display_name: "Browser"
+    # Web browser
+    
+  - name: "5"
+    display_name: "Files"
+    # File explorer
+    
+  - name: "6"
+    display_name: "Project"
+    # Active project work
+    
+  - name: "7"
+    display_name: "Render"
+    # Blender/rendering
+    
+  - name: "8"
+    display_name: "Misc"
+    # Overflow/misc
+    
+  - name: "9"
+    display_name: "Music"
+    # Background audio
+
+# Window rules to auto-assign apps to workspaces
+window_rules:
+  # Notes workspace - WezTerm for notes
+  - command: "move --workspace 1"
+    match:
+      - window_process: { equals: "wezterm-gui" }
+        window_title: { contains: "work" }
+        
+  # Teams
+  - command: "move --workspace 2"
+    match:
+      - window_process: { equals: "ms-teams" }
+      - window_process: { equals: "Teams" }
+      
+  # Outlook
+  - command: "move --workspace 3"
+    match:
+      - window_process: { equals: "OUTLOOK" }
+      - window_process: { equals: "olk" }
+      
+  # Browser
+  - command: "move --workspace 4"
+    match:
+      - window_process: { equals: "chrome" }
+      - window_process: { equals: "msedge" }
+      - window_process: { equals: "firefox" }
+      - window_process: { equals: "qutebrowser" }
+      
+  # File explorer
+  - command: "move --workspace 5"
+    match:
+      - window_process: { equals: "explorer" }
+      
+  # Blender to render workspace
+  - command: "move --workspace 7"
+    match:
+      - window_process: { equals: "blender" }
+
+# Keybindings for workspace navigation
+keybindings:
+  # Quick workspace switching (Alt + number)
+  - commands: ["focus --workspace 1"]
+    bindings: ["alt+1"]
+  - commands: ["focus --workspace 2"]
+    bindings: ["alt+2"]
+  - commands: ["focus --workspace 3"]
+    bindings: ["alt+3"]
+  - commands: ["focus --workspace 4"]
+    bindings: ["alt+4"]
+  - commands: ["focus --workspace 5"]
+    bindings: ["alt+5"]
+  - commands: ["focus --workspace 6"]
+    bindings: ["alt+6"]
+  - commands: ["focus --workspace 7"]
+    bindings: ["alt+7"]
+  - commands: ["focus --workspace 8"]
+    bindings: ["alt+8"]
+  - commands: ["focus --workspace 9"]
+    bindings: ["alt+9"]
+    
+  # Move window to workspace (Alt + Shift + number)
+  - commands: ["move --workspace 1"]
+    bindings: ["alt+shift+1"]
+  - commands: ["move --workspace 2"]
+    bindings: ["alt+shift+2"]
+  - commands: ["move --workspace 3"]
+    bindings: ["alt+shift+3"]
+  - commands: ["move --workspace 4"]
+    bindings: ["alt+shift+4"]
+  - commands: ["move --workspace 5"]
+    bindings: ["alt+shift+5"]
+  - commands: ["move --workspace 6"]
+    bindings: ["alt+shift+6"]
+  - commands: ["move --workspace 7"]
+    bindings: ["alt+shift+7"]
+  - commands: ["move --workspace 8"]
+    bindings: ["alt+shift+8"]
+  - commands: ["move --workspace 9"]
+    bindings: ["alt+shift+9"]
+
+# Semantic quick jumps
+keybindings:
+  # Alt+N = Notes (workspace 1)
+  - commands: ["focus --workspace 1"]
+    bindings: ["alt+n"]
+    
+  # Alt+T = Teams (workspace 2)  
+  - commands: ["focus --workspace 2"]
+    bindings: ["alt+t"]
+    
+  # Alt+E = Email/Outlook (workspace 3)
+  - commands: ["focus --workspace 3"]
+    bindings: ["alt+e"]
+    
+  # Alt+B = Browser (workspace 4)
+  - commands: ["focus --workspace 4"]
+    bindings: ["alt+b"]
+    
+  # Alt+R = Render/Blender (workspace 7)
+  - commands: ["focus --workspace 7"]
+    bindings: ["alt+r"]
+
+# ---
+# INTEGRATION NOTES:
+#
+# 1. Merge these sections into your existing glazewm/config.yaml
+# 2. The window_rules use process names - verify these match your system:
+#    - Run `glazewm query windows` to see actual process names
+# 3. Keybindings may conflict with existing bindings - adjust as needed
+# 4. Workspace display_names show in the bar if you have one configured
+#
+# WORKFLOW:
+#   Alt+1 or Alt+N  → Jump to notes
+#   Alt+2 or Alt+T  → Jump to Teams
+#   Alt+3 or Alt+E  → Jump to Email
+#   Alt+4 or Alt+B  → Jump to Browser
+#   Alt+7 or Alt+R  → Jump to Render
+#
+#   Alt+Shift+N     → Move current window to Notes workspace
+# ---
