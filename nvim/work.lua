@@ -29,7 +29,7 @@ function M.open_today()
     if vim.fn.filereadable(script) == 1 then
         vim.fn.system("pwsh -NoProfile -File " .. script .. " -NoEdit")
     end
-    
+
     local today_dir = M.work_root .. "/01_today"
     ensure_dir(today_dir)
     local today_file = today_dir .. "/" .. today() .. ".md"
@@ -149,32 +149,32 @@ function M.new_meeting()
             ensure_dir(meetings)
             local filename = today() .. "-" .. slug .. ".md"
             local filepath = meetings .. "/" .. filename
-            
+
             local template = string.format([[
 # %s
 
-**Date:** %s  
-**Attendees:** 
+**Date:** %s
+**Attendees:**
 
 ## Agenda
-- 
+-
 
 ## Notes
-- 
+-
 
 ## Action Items
-- [ ] 
+- [ ]
 
 ## Follow-ups
-- [ ] 
+- [ ]
 ]], title, today())
-            
+
             local file = io.open(filepath, "w")
             if file then
                 file:write(template)
                 file:close()
             end
-            
+
             vim.cmd("edit " .. filepath)
         end
     end)
@@ -187,21 +187,21 @@ function M.new_project()
             local slug = name:lower():gsub("[^a-z0-9]+", "-"):gsub("^-", ""):gsub("-$", "")
             local project_path = M.work_root .. "/02_projects/" .. slug
             ensure_dir(project_path)
-            
+
             local display_name = name:gsub("^%l", string.upper)
             local files = {
                 ["overview.md"] = string.format([[
 # %s
 
-**Created:** %s  
-**Status:** Active  
-**Owner:** 
+**Created:** %s
+**Status:** Active
+**Owner:**
 
 ## Summary
 
 
 ## Goals
-- 
+-
 
 ## Scope
 
@@ -210,33 +210,33 @@ function M.new_project()
 
 
 ## Links
-- 
+-
 ]], display_name, today()),
                 ["tasks.md"] = string.format([[
 # %s — Tasks
 
 ## Active
-- [ ] 
+- [ ]
 
 ## Backlog
-- [ ] 
+- [ ]
 
 ## Completed
-- [x] 
+- [x]
 ]], display_name),
                 ["decisions.md"] = string.format([[
 # %s — Decisions
 
 ## %s
-**Decision:** 
-**Context:** 
-**Outcome:** 
+**Decision:**
+**Context:**
+**Outcome:**
 ]], display_name, today()),
                 ["notes.md"] = string.format([[
 # %s — Notes
 
 ## %s
-- 
+-
 ]], display_name, today()),
                 ["risks.md"] = string.format([[
 # %s — Risks
@@ -246,7 +246,7 @@ function M.new_project()
 |      |            |        |            |
 ]], display_name),
             }
-            
+
             for filename, content in pairs(files) do
                 local file = io.open(project_path .. "/" .. filename, "w")
                 if file then
@@ -254,7 +254,7 @@ function M.new_project()
                     file:close()
                 end
             end
-            
+
             vim.cmd("edit " .. project_path .. "/overview.md")
         end
     end)
@@ -268,44 +268,44 @@ function M.new_person()
             local people = M.work_root .. "/03_people"
             ensure_dir(people)
             local filepath = people .. "/" .. slug .. ".md"
-            
+
             local display_name = name:gsub("(%a)([%w_']*)", function(a, b) return a:upper() .. b end)
             local template = string.format([[
 # %s
 
-**Role:**   
-**Started:** %s  
+**Role:**
+**Started:** %s
 
 ## Context
 
 
 ## Strengths
-- 
+-
 
 ## Areas to Support
-- 
+-
 
 ## Goals
-- 
+-
 
 ## 1:1 Notes
 
 ### %s
-- 
+-
 
 ## Follow-ups
-- [ ] 
+- [ ]
 
 ## Meeting History
 <!-- Link: [Title](../04_meetings/YYYY-MM-DD-slug.md) -->
 ]], display_name, today(), today())
-            
+
             local file = io.open(filepath, "w")
             if file then
                 file:write(template)
                 file:close()
             end
-            
+
             vim.cmd("edit " .. filepath)
         end
     end)
@@ -331,7 +331,7 @@ function M.insert_person_link()
                         local pname = selection.value:gsub("%.md$", "")
                         local display = pname:gsub("^%l", string.upper)
                         local link = string.format("[%s](../03_people/%s.md)", display, pname)
-                        vim.api.nvim_put({link}, "c", true, true)
+                        vim.api.nvim_put({ link }, "c", true, true)
                     end
                 end)
                 return true
@@ -347,7 +347,7 @@ end
 function M.setup()
     local keymap = vim.keymap.set
     local opts = { noremap = true, silent = true }
-    
+
     -- Browse commands: <leader>w + key
     keymap("n", "<leader>wt", M.open_today, vim.tbl_extend("force", opts, { desc = "Today's note" }))
     keymap("n", "<leader>wi", M.open_inbox, vim.tbl_extend("force", opts, { desc = "Inbox" }))
@@ -357,17 +357,14 @@ function M.setup()
     keymap("n", "<leader>we", M.browse_people, vim.tbl_extend("force", opts, { desc = "People" }))
     keymap("n", "<leader>wm", M.browse_meetings, vim.tbl_extend("force", opts, { desc = "Meetings" }))
     keymap("n", "<leader>wl", M.list_recent, vim.tbl_extend("force", opts, { desc = "Recent notes" }))
-    
+
     -- Create commands: <leader>wn + key
     keymap("n", "<leader>wnm", M.new_meeting, vim.tbl_extend("force", opts, { desc = "New meeting" }))
     keymap("n", "<leader>wnp", M.new_project, vim.tbl_extend("force", opts, { desc = "New project" }))
     keymap("n", "<leader>wne", M.new_person, vim.tbl_extend("force", opts, { desc = "New person" }))
-    
+
     -- Utility
     keymap("n", "<leader>wil", M.insert_person_link, vim.tbl_extend("force", opts, { desc = "Insert person link" }))
-    
-    -- Quick access
-    keymap("n", "<leader><leader>", M.open_today, vim.tbl_extend("force", opts, { desc = "Today's note" }))
 end
 
 return M
