@@ -348,6 +348,14 @@ function M.setup()
     local keymap = vim.keymap.set
     local opts = { noremap = true, silent = true }
 
+    -- Ensure Unix line endings for work files
+    vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {
+        pattern = vim.fn.expand("$HOME/work") .. "/**/*.md",
+        callback = function()
+            vim.bo.fileformat = "unix"
+        end,
+    })
+
     -- Browse commands: <leader>w + key
     keymap("n", "<leader>wt", M.open_today, vim.tbl_extend("force", opts, { desc = "Today's note" }))
     keymap("n", "<leader>wi", M.open_inbox, vim.tbl_extend("force", opts, { desc = "Inbox" }))

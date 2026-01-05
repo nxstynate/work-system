@@ -1,14 +1,14 @@
 # Work Notes System
 
-A markdown-first, keyboard-driven work organization system for Neovim + WezTerm + PowerShell. 
+A markdown-first, keyboard-driven work organization system for Neovim + WezTerm + PowerShell.
 
-## Quick Start
+## Installation
 
-### 1. Copy files to your system
+### 1. Copy to your system
 
 ```powershell
-# Clone or copy work-system to your home directory
-cp -r work-system ~/work-system
+# Copy work-system to your home directory
+Copy-Item -Recurse work-system ~/work-system
 
 # Initialize the work directory structure
 pwsh ~/work-system/scripts/Open-Today.ps1 -NoEdit
@@ -19,7 +19,6 @@ pwsh ~/work-system/scripts/Open-Today.ps1 -NoEdit
 Add to your `$PROFILE`:
 
 ```powershell
-# Work notes system
 . ~/work-system/scripts/Work-Functions.ps1
 ```
 
@@ -28,157 +27,82 @@ Add to your `$PROFILE`:
 Add to your `init.lua`:
 
 ```lua
--- Add work system to runtimepath
 vim.opt.runtimepath:append(vim.fn.expand("$HOME/work-system/nvim"))
-
--- Load and setup work keybindings
 require("work").setup()
 ```
 
-### 4. Configure WezTerm
+### 4. Configure WezTerm (optional)
 
-In your `wezterm.lua`:
+Add to your `wezterm.lua`:
 
 ```lua
--- Load work system keybindings
-package.path = package.path .. ";" .. wezterm.home_dir .. "/work-system/wezterm/?.lua"
-local work = require("wezterm-work")
-
--- Ensure leader is set (Ctrl+T)
-config.leader = { key = "t", mods = "CTRL", timeout_milliseconds = 2000 }
-
--- Merge work keys into your config
-config.keys = config.keys or {}
-for _, key in ipairs(work.keys) do
-    table.insert(config.keys, key)
-end
-
--- Merge key tables
-config.key_tables = config.key_tables or {}
-for name, tbl in pairs(work.key_tables) do
-    config.key_tables[name] = tbl
-end
+require("nxstynate.work").apply(config)
 ```
 
+Place `wezterm/work.lua` in your WezTerm config folder (e.g., `nxstynate/work.lua`).
 
+## Quick Start
+
+After installation, reload your shell and try:
+
+```powershell
+wt          # Open today's note
+wh          # Show help menu
+wh commands # List all commands
+wh workflow # Daily workflow guide
+```
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `wt` | Open today's note |
+| `ws` | Search notes |
+| `wp` | Browse projects |
+| `we` | Browse people |
+| `wm` | Browse meetings |
+| `wnm "title"` | New meeting |
+| `wnp "name"` | New project |
+| `wne "name"` | New person |
+| `wh` | Show help |
+
+## Keybindings
+
+All tools use the same pattern after their leader key:
+
+| Action | PowerShell | Neovim | WezTerm |
+|--------|------------|--------|---------|
+| Today | `wt` | `<Space>wt` | `Ctrl+T, w, t` |
+| Search | `ws` | `<Space>ws` | `Ctrl+T, w, s` |
+| Projects | `wp` | `<Space>wp` | `Ctrl+T, w, p` |
+| People | `we` | `<Space>we` | `Ctrl+T, w, e` |
+| Meetings | `wm` | `<Space>wm` | `Ctrl+T, w, m` |
+| New meeting | `wnm` | `<Space>wnm` | `Ctrl+T, w, n, m` |
 
 ## Directory Structure
 
 ```
 ~/work/
-├── 00_inbox/        # Quick capture, unstructured
-├── 01_today/        # Daily notes (YYYY-MM-DD.md)
-├── 02_projects/     # Project folders
-│   └── project-name/
-│       ├── overview.md
-│       ├── tasks.md
-│       ├── decisions.md
-│       ├── notes.md
-│       └── risks.md
-├── 03_people/       # Person files (name.md)
-├── 04_meetings/     # Meeting notes (YYYY-MM-DD-slug.md)
-├── 05_process/      # Playbooks, SOPs
-├── 06_reference/    # Stable reference docs
-├── 07_logs/         # Monthly/weekly logs
-├── 08_templates/    # Note templates
-└── 99_archive/      # Completed/inactive items
+├── 00_inbox/      # Quick capture
+├── 01_today/      # Daily notes
+├── 02_projects/   # Project folders
+├── 03_people/     # People files
+├── 04_meetings/   # Meeting notes
+├── 05_process/    # Playbooks
+├── 06_reference/  # Reference docs
+├── 07_logs/       # Weekly logs
+├── 08_templates/  # Templates
+└── 99_archive/    # Archive
 ```
 
-## Unified Keybindings
+## Documentation
 
-All three tools use the same key sequences after their respective leader/prefix:
+- **USAGE.md** — Detailed usage guide, workflows, and tips
+- **wh** — Interactive help in terminal
 
-| Action      | PowerShell | Neovim       | WezTerm          |
-|-------------|------------|--------------|------------------|
-| Today       | `wt`       | `<Space>wt`  | `Ctrl+T, w, t`   |
-| Inbox       | `wi`       | `<Space>wi`  | `Ctrl+T, w, i`   |
-| Search      | `ws`       | `<Space>ws`  | `Ctrl+T, w, s`   |
-| Find files  | `wf`       | `<Space>wf`  | `Ctrl+T, w, f`   |
-| Projects    | `wp`       | `<Space>wp`  | `Ctrl+T, w, p`   |
-| People      | `we`       | `<Space>we`  | `Ctrl+T, w, e`   |
-| Meetings    | `wm`       | `<Space>wm`  | `Ctrl+T, w, m`   |
-| Recent      | `wl`       | `<Space>wl`  | `Ctrl+T, w, l`   |
-| New meeting | `wnm`      | `<Space>wnm` | `Ctrl+T, w, n, m`|
-| New project | `wnp`      | `<Space>wnp` | `Ctrl+T, w, n, p`|
-| New person  | `wne`      | `<Space>wne` | `Ctrl+T, w, n, e`|
-| Help        | `wh`       | —            | `Ctrl+T, w, h`   |
+## Features
 
-### PowerShell-only Commands
-
-| Alias | Description |
-|-------|-------------|
-| `wd [n]` | Open note n days ago (0=today, 1=yesterday) |
-| `cdw` | CD to work root |
-
-### Neovim-only Commands
-
-| Mapping | Description |
-|---------|-------------|
-| `<Space><Space>` | Quick access to today's note |
-| `<Space>wil` | Insert person link at cursor |
-
-
-## Task Rollover
-
-When you open today's note (via any method), incomplete tasks from the previous day automatically roll forward:
-
-```
-Yesterday (2025-03-29.md):
-- [x] Review renders
-- [ ] Send feedback to Tron   ← incomplete
-- [ ] Update timeline          ← incomplete
-
-Today (2025-03-30.md) is created with:
-## Tasks
-- [ ] Send feedback to Tron   ← rolled over
-- [ ] Update timeline          ← rolled over
-- [ ] 
-```
-
-## Linking
-
-### People from Meetings
-
-```markdown
-# Standup
-
-**Attendees:** [Tron](../03_people/Tron.md), [Tron](../03_people/Tron.md)
-```
-
-### Meetings from People
-
-```markdown
-## Meeting History
-- [2025-03-30 Standup](../04_meetings/2025-03-30-standup.md)
-- [2025-03-28 1on1](../04_meetings/2025-03-28-1on1-Tron.md)
-```
-
-## Searching
-
-From any tool, use `ws` (with appropriate prefix) to search all notes.
-
-From terminal with ripgrep:
-```powershell
-ws "render pipeline"       # PowerShell alias
-rg -i "render" ~/work      # Direct ripgrep
-```
-
-## Templates
-
-Templates live in `~/work/08_templates/`. The system uses these placeholders:
-- `{{date}}` - Current date (YYYY-MM-DD)
-- `{{title}}` - Meeting title
-- `{{name}}` - Person/project name
-
-## Customization
-
-### Change work root
-
-Edit these files:
-- `scripts/*.ps1` → `$WorkRoot`
-- `nvim/work.lua` → `M.work_root`
-- `wezterm/wezterm-work.lua` → `work_root`
-
-### Extend the system
-
-The PowerShell scripts are standalone—modify or add new ones to `scripts/`.
+- **Task Rollover**: Incomplete tasks automatically roll to the next day (within their sections)
+- **Unified Keybindings**: Same patterns across PowerShell, Neovim, and WezTerm
+- **Markdown-first**: Plain text files, no database, works offline
+- **Searchable**: ripgrep and Telescope integration

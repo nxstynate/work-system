@@ -19,6 +19,17 @@ $WorkRoot = Join-Path $HOME "work"
 $ProjectsDir = Join-Path $WorkRoot "02_projects"
 $TemplateDir = Join-Path $WorkRoot "08_templates"
 
+# Helper function to write with Unix line endings
+function Write-UnixFile {
+    param(
+        [string]$Path,
+        [string]$Content
+    )
+    $unixContent = $Content -replace "`r`n", "`n" -replace "`r", "`n"
+    $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+    [System.IO.File]::WriteAllText($Path, $unixContent, $utf8NoBom)
+}
+
 # Create slug from name
 $slug = $Name.ToLower() -replace '[^a-z0-9]+', '-' -replace '^-|-$', ''
 $projectPath = Join-Path $ProjectsDir $slug
@@ -62,7 +73,7 @@ $files = @{
 - 
 "@
     "tasks.md" = @"
-# $displayName — Tasks
+# $displayName - Tasks
 
 ## Active
 - [ ] 
@@ -74,7 +85,7 @@ $files = @{
 - [x] 
 "@
     "decisions.md" = @"
-# $displayName — Decisions
+# $displayName - Decisions
 
 ## $today
 **Decision:** 
@@ -82,13 +93,13 @@ $files = @{
 **Outcome:** 
 "@
     "notes.md" = @"
-# $displayName — Notes
+# $displayName - Notes
 
 ## $today
 - 
 "@
     "risks.md" = @"
-# $displayName — Risks
+# $displayName - Risks
 
 | Risk | Likelihood | Impact | Mitigation |
 |------|------------|--------|------------|
@@ -98,7 +109,7 @@ $files = @{
 
 foreach ($file in $files.GetEnumerator()) {
     $filePath = Join-Path $projectPath $file.Key
-    $file.Value | Set-Content -Path $filePath -NoNewline
+    Write-UnixFile -Path $filePath -Content $file.Value
 }
 
 Write-Host "Created project: $projectPath" -ForegroundColor Green

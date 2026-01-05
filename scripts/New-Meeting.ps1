@@ -5,7 +5,7 @@
     Creates a meeting file in 04_meetings/ with format YYYY-MM-DD-<slug>.md
 .EXAMPLE
     ./New-Meeting.ps1 standup
-    ./New-Meeting.ps1 "1on1 Tron"
+    ./New-Meeting.ps1 "1on1 Alex"
     ./New-Meeting.ps1 -Title "project kickoff" -Date "2025-04-01"
 #>
 
@@ -71,7 +71,11 @@ if (Test-Path $templatePath) {
         -replace '\{\{date\}\}', $Date
 }
 
-$template | Set-Content -Path $filepath -NoNewline
+# Write with Unix line endings
+$unixContent = $template -replace "`r`n", "`n" -replace "`r", "`n"
+$utf8NoBom = New-Object System.Text.UTF8Encoding $false
+[System.IO.File]::WriteAllText($filepath, $unixContent, $utf8NoBom)
+
 Write-Host "Created: $filepath" -ForegroundColor Green
 
 if ($people.Count -gt 0) {

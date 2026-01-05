@@ -4,6 +4,7 @@
 .DESCRIPTION
     - Creates $HOME/work directory structure if missing
     - Rolls over incomplete tasks from the most recent previous daily note
+    - Tasks roll over within their sections (Focus->Focus, Tasks->Tasks, Follow-ups->Follow-ups)
     - Opens today's note in Neovim
 .EXAMPLE
     ./Open-Today.ps1
@@ -45,14 +46,27 @@ function Initialize-WorkStructure {
     }
 }
 
-# Get incomplete tasks from a markdown file
+# Get incomplete tasks from a specific section of a markdown file
 function Get-IncompleteTasks {
-    param([string]$FilePath)
+    param(
+        [string]$FilePath,
+        [string]$SectionName
+    )
     
     if (-not (Test-Path $FilePath)) { return @() }
     
     $content = Get-Content $FilePath -Raw
-    $tasks = [regex]::Matches($content, '^\s*-\s*\[\s*\]\s*.+$', 'Multiline')
+    
+    # Match the section: ## SectionName followed by content until next ## or end
+    $pattern = "(?ms)^## $SectionName\s*\n(.*?)(?=^## |\z)"
+    $match = [regex]::Match($content, $pattern)
+    
+    if (-not $match.Success) { return @() }
+    
+    $sectionContent = $match.Groups[1].Value
+    
+    # Find incomplete tasks within this section
+    $tasks = [regex]::Matches($sectionContent, '^\s*-\s*\[\s*\]\s*.+$', 'Multiline')
     return $tasks | ForEach-Object { $_.Value.Trim() }
 }
 
@@ -66,6 +80,21 @@ function Get-PreviousDailyNote {
         Select-Object -First 1
     
     return $files
+}
+
+# Write content with Unix line endings (LF only, no CRLF)
+function Write-UnixFile {
+    param(
+        [string]$Path,
+        [string]$Content
+    )
+    
+    # Normalize to Unix line endings
+    $unixContent = $Content -replace "`r`n", "`n" -replace "`r", "`n"
+    
+    # Write as UTF8 without BOM with Unix line endings
+    $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+    [System.IO.File]::WriteAllText($Path, $unixContent, $utf8NoBom)
 }
 
 # Create today's note from template with rolled-over tasks
@@ -98,28 +127,62 @@ function New-DailyNote {
         $template = (Get-Content $templatePath -Raw) -replace '\{\{date\}\}', $Today
     }
 
-    # Get tasks to roll over
+    # Get tasks to roll over from each section
     $previousNote = Get-PreviousDailyNote
+    $rolledFocus = @()
     $rolledTasks = @()
+    $rolledFollowups = @()
     
     if ($previousNote) {
-        $rolledTasks = Get-IncompleteTasks -FilePath $previousNote.FullName
-        if ($rolledTasks.Count -gt 0) {
-            Write-Host "Rolling over $($rolledTasks.Count) task(s) from $($previousNote.BaseName)" -ForegroundColor Yellow
+        $rolledFocus = Get-IncompleteTasks -FilePath $previousNote.FullName -SectionName "Focus"
+        $rolledTasks = Get-IncompleteTasks -FilePath $previousNote.FullName -SectionName "Tasks"
+        $rolledFollowups = Get-IncompleteTasks -FilePath $previousNote.FullName -SectionName "Follow-ups"
+        
+        $totalRolled = $rolledFocus.Count + $rolledTasks.Count + $rolledFollowups.Count
+        if ($totalRolled -gt 0) {
+            Write-Host "Rolling over from $($previousNote.BaseName):" -ForegroundColor Yellow
+            if ($rolledFocus.Count -gt 0) { Write-Host "  Focus: $($rolledFocus.Count)" -ForegroundColor DarkYellow }
+            if ($rolledTasks.Count -gt 0) { Write-Host "  Tasks: $($rolledTasks.Count)" -ForegroundColor DarkYellow }
+            if ($rolledFollowups.Count -gt 0) { Write-Host "  Follow-ups: $($rolledFollowups.Count)" -ForegroundColor DarkYellow }
         }
     }
 
-    # Insert rolled tasks under ## Tasks
+    # Insert rolled Focus items
+    if ($rolledFocus.Count -gt 0) {
+        $focusSection = "## Focus`n"
+        foreach ($task in $rolledFocus) {
+            $focusSection += "$task`n"
+        }
+        # Keep empty slots up to 3 total
+        $emptySlots = [Math]::Max(0, 3 - $rolledFocus.Count)
+        for ($i = 0; $i -lt $emptySlots; $i++) {
+            $focusSection += "- [ ] `n"
+        }
+        $template = $template -replace '## Focus\s*\n(?:- \[ \] \n)*(?:- \[ \] )?', $focusSection
+    }
+
+    # Insert rolled Tasks
     if ($rolledTasks.Count -gt 0) {
         $taskSection = "## Tasks`n"
         foreach ($task in $rolledTasks) {
             $taskSection += "$task`n"
         }
-        $taskSection += "- [ ] "
-        $template = $template -replace '## Tasks\s*\n-\s*\[\s*\]\s*', $taskSection
+        $taskSection += "- [ ] `n"
+        $template = $template -replace '## Tasks\s*\n- \[ \] \n?', $taskSection
     }
 
-    $template | Set-Content -Path $TodayFile -NoNewline
+    # Insert rolled Follow-ups
+    if ($rolledFollowups.Count -gt 0) {
+        $followupSection = "## Follow-ups`n"
+        foreach ($task in $rolledFollowups) {
+            $followupSection += "$task`n"
+        }
+        $followupSection += "- [ ] `n"
+        $template = $template -replace '## Follow-ups\s*\n- \[ \] \n?', $followupSection
+    }
+
+    # Write with Unix line endings
+    Write-UnixFile -Path $TodayFile -Content $template
     Write-Host "Created: $TodayFile" -ForegroundColor Green
 }
 

@@ -8,10 +8,12 @@
     wt      # Open today's note
     wnm     # Create new meeting
     ws      # Search notes
+    wh      # Show help
 #>
 
 $script:WorkRoot = Join-Path $HOME "work"
 $script:ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$script:SystemRoot = Split-Path -Parent $ScriptRoot
 
 # ============================================
 # BROWSE COMMANDS
@@ -45,7 +47,7 @@ function Search-WorkNotes {
     } else {
         # No query = open Telescope search
         Push-Location $WorkRoot
-        & nvim -c "Telescope live_grep"
+        & nvim -c "lua vim.schedule(function() require('telescope.builtin').live_grep({cwd='$($WorkRoot -replace '\\','/')'}) end)"
         Pop-Location
     }
 }
@@ -54,7 +56,7 @@ Set-Alias -Name ws -Value Search-WorkNotes
 # wf - Find files in work directory
 function Find-WorkFiles {
     Push-Location $WorkRoot
-    & nvim -c "Telescope find_files"
+    & nvim -c "lua vim.schedule(function() require('telescope.builtin').find_files({cwd='$($WorkRoot -replace '\\','/')'}) end)"
     Pop-Location
 }
 Set-Alias -Name wf -Value Find-WorkFiles
@@ -65,8 +67,9 @@ function Open-WorkProjects {
     if (-not (Test-Path $projects)) {
         New-Item -ItemType Directory -Path $projects -Force | Out-Null
     }
+    $projectsPath = $projects -replace '\\','/'
     Set-Location $projects
-    & nvim -c "Telescope find_files"
+    & nvim -c "lua vim.schedule(function() require('telescope.builtin').find_files({cwd='$projectsPath'}) end)"
 }
 Set-Alias -Name wp -Value Open-WorkProjects
 
@@ -76,8 +79,9 @@ function Open-WorkPeople {
     if (-not (Test-Path $people)) {
         New-Item -ItemType Directory -Path $people -Force | Out-Null
     }
+    $peoplePath = $people -replace '\\','/'
     Set-Location $people
-    & nvim -c "Telescope find_files"
+    & nvim -c "lua vim.schedule(function() require('telescope.builtin').find_files({cwd='$peoplePath'}) end)"
 }
 Set-Alias -Name we -Value Open-WorkPeople
 
@@ -87,8 +91,9 @@ function Open-WorkMeetings {
     if (-not (Test-Path $meetings)) {
         New-Item -ItemType Directory -Path $meetings -Force | Out-Null
     }
+    $meetingsPath = $meetings -replace '\\','/'
     Set-Location $meetings
-    & nvim -c "Telescope find_files"
+    & nvim -c "lua vim.schedule(function() require('telescope.builtin').find_files({cwd='$meetingsPath'}) end)"
 }
 Set-Alias -Name wm -Value Open-WorkMeetings
 
@@ -177,35 +182,167 @@ function Set-WorkLocation {
 Set-Alias -Name cdw -Value Set-WorkLocation
 
 # ============================================
-# HELP
+# HELP SYSTEM
 # ============================================
 
-function Show-WorkHelp {
+function Show-WorkHelpCommands {
     Write-Host ""
-    Write-Host "Work Notes System" -ForegroundColor Cyan
-    Write-Host "================" -ForegroundColor Cyan
+    Write-Host "  BROWSE COMMANDS" -ForegroundColor Yellow
+    Write-Host "  ---------------"
+    Write-Host "  wt            Open today's daily note (creates if needed, rolls over tasks)"
+    Write-Host "  wi            Open inbox folder for quick capture"
+    Write-Host "  ws [query]    Search notes - with query uses ripgrep, without opens Telescope"
+    Write-Host "  wf            Find files in work directory (Telescope)"
+    Write-Host "  wp            Browse projects folder"
+    Write-Host "  we            Browse people files"
+    Write-Host "  wm            Browse meeting notes"
+    Write-Host "  wl [n]        List recent n daily notes (default: 7)"
+    Write-Host "  wd [n]        Open note from n days ago (0=today, 1=yesterday)"
     Write-Host ""
-    Write-Host "Browse:" -ForegroundColor Yellow
-    Write-Host "  wt          Today's note"
-    Write-Host "  wi          Inbox"
-    Write-Host "  ws [query]  Search notes (ripgrep or Telescope)"
-    Write-Host "  wf          Find files (Telescope)"
-    Write-Host "  wp          Projects"
-    Write-Host "  we          People"
-    Write-Host "  wm          Meetings"
-    Write-Host "  wl [n]      List recent daily notes"
-    Write-Host "  wd [n]      Open note n days ago"
+    Write-Host "  CREATE COMMANDS" -ForegroundColor Yellow
+    Write-Host "  ---------------"
+    Write-Host "  wnm [title]   Create new meeting note (YYYY-MM-DD-slug.md)"
+    Write-Host "  wnp [name]    Create new project folder with standard files"
+    Write-Host "  wne [name]    Create new person file"
     Write-Host ""
-    Write-Host "Create:" -ForegroundColor Yellow
-    Write-Host "  wnm [title] New meeting"
-    Write-Host "  wnp [name]  New project"
-    Write-Host "  wne [name]  New person"
-    Write-Host ""
-    Write-Host "Utility:" -ForegroundColor Yellow
-    Write-Host "  cdw         CD to work root"
-    Write-Host "  wh          Show this help"
+    Write-Host "  UTILITY COMMANDS" -ForegroundColor Yellow
+    Write-Host "  ----------------"
+    Write-Host "  cdw           Change directory to work root"
+    Write-Host "  wh            Show this help (or: wh commands|workflow|folders|tips)"
     Write-Host ""
 }
-Set-Alias -Name wh -Value Show-WorkHelp
 
-Write-Host "Work system loaded. Type 'wh' for help." -ForegroundColor Cyan
+function Show-WorkHelpWorkflow {
+    Write-Host ""
+    Write-Host "  DAILY WORKFLOW" -ForegroundColor Yellow
+    Write-Host "  ---------------"
+    Write-Host ""
+    Write-Host "  START OF DAY" -ForegroundColor Cyan
+    Write-Host "  1. Run 'wt' to open today's note"
+    Write-Host "  2. Review rolled-over tasks from yesterday"
+    Write-Host "  3. Set your top 3 Focus items"
+    Write-Host "  4. Add known meetings to the Meetings section"
+    Write-Host ""
+    Write-Host "  DURING THE DAY" -ForegroundColor Cyan
+    Write-Host "  - Capture thoughts in Notes section"
+    Write-Host "  - Add tasks as they come up: - [ ] task description"
+    Write-Host "  - Mark complete: - [x] task description"
+    Write-Host "  - Quick meeting notes: add to Meetings section"
+    Write-Host "  - Detailed meeting: run 'wnm `"meeting title`"'"
+    Write-Host ""
+    Write-Host "  END OF DAY" -ForegroundColor Cyan
+    Write-Host "  - Review incomplete items (they roll over automatically)"
+    Write-Host "  - Move completed projects to 99_archive/"
+    Write-Host "  - Close Neovim - that's it!"
+    Write-Host ""
+    Write-Host "  TASK ROLLOVER" -ForegroundColor Cyan
+    Write-Host "  - Focus items -> roll to Focus"
+    Write-Host "  - Tasks -> roll to Tasks"
+    Write-Host "  - Follow-ups -> roll to Follow-ups"
+    Write-Host "  - Completed tasks [x] do NOT roll over"
+    Write-Host ""
+}
+
+function Show-WorkHelpFolders {
+    Write-Host ""
+    Write-Host "  FOLDER STRUCTURE" -ForegroundColor Yellow
+    Write-Host "  -----------------"
+    Write-Host ""
+    Write-Host "  ~/work/"
+    Write-Host "  |-- 00_inbox/      Quick capture, unstructured notes"
+    Write-Host "  |-- 01_today/      Daily notes (YYYY-MM-DD.md)"
+    Write-Host "  |-- 02_projects/   One folder per project"
+    Write-Host "  |   +-- project-name/"
+    Write-Host "  |       |-- overview.md"
+    Write-Host "  |       |-- tasks.md"
+    Write-Host "  |       |-- decisions.md"
+    Write-Host "  |       |-- notes.md"
+    Write-Host "  |       +-- risks.md"
+    Write-Host "  |-- 03_people/     One file per person (name.md)"
+    Write-Host "  |-- 04_meetings/   Meeting notes (YYYY-MM-DD-slug.md)"
+    Write-Host "  |-- 05_process/    Playbooks, SOPs, how-tos"
+    Write-Host "  |-- 06_reference/  Stable reference material"
+    Write-Host "  |-- 07_logs/       Weekly/monthly reflection logs"
+    Write-Host "  |-- 08_templates/  Note templates"
+    Write-Host "  +-- 99_archive/    Completed/inactive items"
+    Write-Host ""
+}
+
+function Show-WorkHelpTips {
+    Write-Host ""
+    Write-Host "  TIPS & BEST PRACTICES" -ForegroundColor Yellow
+    Write-Host "  ----------------------"
+    Write-Host ""
+    Write-Host "  FOCUS" -ForegroundColor Cyan
+    Write-Host "  - Limit Focus to 3 items max"
+    Write-Host "  - Everything else goes in Tasks"
+    Write-Host ""
+    Write-Host "  CAPTURE" -ForegroundColor Cyan
+    Write-Host "  - Use 'wi' (inbox) for quick dumps"
+    Write-Host "  - Don't overthink organization - just capture"
+    Write-Host "  - Process inbox during downtime"
+    Write-Host ""
+    Write-Host "  LINKING" -ForegroundColor Cyan
+    Write-Host "  - Link people from meetings: [Name](../03_people/name.md)"
+    Write-Host "  - Link meetings from people files"
+    Write-Host "  - In Neovim: <Space>wil inserts a person link"
+    Write-Host ""
+    Write-Host "  MAINTENANCE" -ForegroundColor Cyan
+    Write-Host "  - Archive completed projects to 99_archive/"
+    Write-Host "  - Weekly review: create 07_logs/YYYY-WNN.md"
+    Write-Host "  - Keep active folders clean"
+    Write-Host ""
+    Write-Host "  NAMING" -ForegroundColor Cyan
+    Write-Host "  - Dates: YYYY-MM-DD"
+    Write-Host "  - Files: lowercase-with-dashes"
+    Write-Host "  - People: firstname-lastname.md"
+    Write-Host ""
+}
+
+function Show-WorkHelpMenu {
+    Write-Host ""
+    Write-Host "  ╔══════════════════════════════════════════╗" -ForegroundColor Cyan
+    Write-Host "  ║         WORK NOTES SYSTEM HELP           ║" -ForegroundColor Cyan
+    Write-Host "  ╚══════════════════════════════════════════╝" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "  Usage: wh [topic]" -ForegroundColor DarkGray
+    Write-Host ""
+    Write-Host "  TOPICS" -ForegroundColor Yellow
+    Write-Host "  -------"
+    Write-Host "  wh              Show this menu"
+    Write-Host "  wh commands     List all available commands"
+    Write-Host "  wh workflow     Daily workflow guide"
+    Write-Host "  wh folders      Folder structure explanation"
+    Write-Host "  wh tips         Tips and best practices"
+    Write-Host "  wh all          Show everything"
+    Write-Host ""
+    Write-Host "  QUICK START" -ForegroundColor Yellow
+    Write-Host "  ------------"
+    Write-Host "  wt              Open today's note"
+    Write-Host "  ws              Search all notes"
+    Write-Host "  wnm `"title`"     Create meeting note"
+    Write-Host "  wnp `"name`"      Create project"
+    Write-Host "  wne `"name`"      Create person file"
+    Write-Host ""
+    Write-Host "  Full documentation: ~/work-system/USAGE.md" -ForegroundColor DarkGray
+    Write-Host ""
+}
+
+function Show-WorkHelp {
+    param([Parameter(Position=0)][string]$Topic)
+    
+    switch ($Topic.ToLower()) {
+        "commands" { Show-WorkHelpCommands }
+        "workflow" { Show-WorkHelpWorkflow }
+        "folders"  { Show-WorkHelpFolders }
+        "tips"     { Show-WorkHelpTips }
+        "all" {
+            Show-WorkHelpCommands
+            Show-WorkHelpWorkflow
+            Show-WorkHelpFolders
+            Show-WorkHelpTips
+        }
+        default { Show-WorkHelpMenu }
+    }
+}
+Set-Alias -Name wh -Value Show-WorkHelp

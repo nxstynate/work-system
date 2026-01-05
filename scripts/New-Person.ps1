@@ -4,8 +4,8 @@
 .DESCRIPTION
     Creates a person file in 03_people/ with standard sections.
 .EXAMPLE
-    ./New-Person.ps1 "Tron"
-    ./New-Person.ps1 -Name "Tron" -Role "Senior Artist"
+    ./New-Person.ps1 "alex"
+    ./New-Person.ps1 -Name "Alex Chen" -Role "Senior Artist"
 #>
 
 param(
@@ -67,7 +67,11 @@ $template = @"
 <!-- Link to meetings: [Meeting Title](../04_meetings/YYYY-MM-DD-slug.md) -->
 "@
 
-$template | Set-Content -Path $filepath -NoNewline
+# Write with Unix line endings
+$unixContent = $template -replace "`r`n", "`n" -replace "`r", "`n"
+$utf8NoBom = New-Object System.Text.UTF8Encoding $false
+[System.IO.File]::WriteAllText($filepath, $unixContent, $utf8NoBom)
+
 Write-Host "Created: $filepath" -ForegroundColor Green
 
 & nvim $filepath
