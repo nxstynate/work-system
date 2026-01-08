@@ -311,6 +311,32 @@ function M.new_person()
     end)
 end
 
+-- wng - Create new daily log
+function M.new_log()
+    local logs = M.work_root .. "/07_logs"
+    ensure_dir(logs)
+    local filepath = logs .. "/" .. today() .. ".md"
+    
+    -- Check if file exists
+    local exists = vim.fn.filereadable(filepath) == 1
+    
+    if not exists then
+        local day_of_week = os.date("%A")
+        local template = string.format([[
+# %s (%s)
+
+]], today(), day_of_week)
+
+        local file = io.open(filepath, "w")
+        if file then
+            file:write(template)
+            file:close()
+        end
+    end
+    
+    vim.cmd("edit " .. filepath)
+end
+
 -- ============================================
 -- UTILITY
 -- ============================================
@@ -370,6 +396,7 @@ function M.setup()
     keymap("n", "<leader>wnm", M.new_meeting, vim.tbl_extend("force", opts, { desc = "New meeting" }))
     keymap("n", "<leader>wnp", M.new_project, vim.tbl_extend("force", opts, { desc = "New project" }))
     keymap("n", "<leader>wne", M.new_person, vim.tbl_extend("force", opts, { desc = "New person" }))
+    keymap("n", "<leader>wng", M.new_log, vim.tbl_extend("force", opts, { desc = "New log" }))
 
     -- Utility
     keymap("n", "<leader>wil", M.insert_person_link, vim.tbl_extend("force", opts, { desc = "Insert person link" }))

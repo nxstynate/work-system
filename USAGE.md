@@ -176,6 +176,36 @@ wm
 
 ---
 
+## Working with Logs
+
+Logs are for daily journaling and progress tracking — separate from your task-focused daily notes.
+
+### Create Today's Log
+
+```
+wng
+```
+
+Creates `~/work/07_logs/2025-01-06.md` with sections for:
+- Summary
+- Progress
+- Accomplishments
+- Challenges
+- Tomorrow
+- Notes
+
+### When to Use Logs vs Daily Notes
+
+- **Daily Notes (`wt`)**: Task management, meetings, action items
+- **Logs (`wng`)**: Reflection, progress tracking, journaling
+
+### Weekly Logs
+
+You can also create weekly summary logs manually:
+- `~/work/07_logs/2025-W01.md` for week 1 of 2025
+
+---
+
 ## Searching
 
 ### Search Content (ripgrep)
@@ -227,6 +257,7 @@ Opens Telescope file finder for the entire work directory.
 | `wnm [title]` | Create new meeting note |
 | `wnp [name]` | Create new project |
 | `wne [name]` | Create new person file |
+| `wng` | Create new daily log entry |
 
 ### Utility Commands
 

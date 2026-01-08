@@ -310,6 +310,27 @@ Read-Host "Press Enter to close"
             }),
         },
 
+        -- wng - New log
+        {
+            key = "g",
+            action = wezterm.action_callback(function(window, pane)
+                window:perform_action(
+                    act.SpawnCommandInNewTab({
+                        args = { "pwsh", "-NoProfile", "-File",
+                            scripts .. "/New-Log.ps1" },
+                        cwd = work_root,
+                    }),
+                    pane
+                )
+                wezterm.time.call_after(0.1, function()
+                    local tab = window:active_tab()
+                    if tab then
+                        tab:set_title("LOG")
+                    end
+                end)
+            end),
+        },
+
         -- Escape to cancel
         {
             key = "Escape",

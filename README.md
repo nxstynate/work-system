@@ -64,6 +64,7 @@ wh workflow # Daily workflow guide
 | `wnm "title"` | New meeting |
 | `wnp "name"` | New project |
 | `wne "name"` | New person |
+| `wng` | New daily log |
 | `wh` | Show help |
 
 ## Keybindings
@@ -78,6 +79,7 @@ All tools use the same pattern after their leader key:
 | People | `we` | `<Space>we` | `Ctrl+T, w, e` |
 | Meetings | `wm` | `<Space>wm` | `Ctrl+T, w, m` |
 | New meeting | `wnm` | `<Space>wnm` | `Ctrl+T, w, n, m` |
+| New log | `wng` | `<Space>wng` | `Ctrl+T, w, n, g` |
 
 ## Directory Structure
 

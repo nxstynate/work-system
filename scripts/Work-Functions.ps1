@@ -171,6 +171,13 @@ function New-WorkPerson {
 }
 Set-Alias -Name wne -Value New-WorkPerson
 
+# wng - Create new daily log
+function New-WorkLog {
+    $scriptPath = Join-Path $ScriptRoot "New-Log.ps1"
+    & $scriptPath
+}
+Set-Alias -Name wng -Value New-WorkLog
+
 # ============================================
 # UTILITY COMMANDS
 # ============================================
@@ -204,6 +211,7 @@ function Show-WorkHelpCommands {
     Write-Host "  wnm [title]   Create new meeting note (YYYY-MM-DD-slug.md)"
     Write-Host "  wnp [name]    Create new project folder with standard files"
     Write-Host "  wne [name]    Create new person file"
+    Write-Host "  wng           Create new daily log entry for journaling"
     Write-Host ""
     Write-Host "  UTILITY COMMANDS" -ForegroundColor Yellow
     Write-Host "  ----------------"
@@ -323,6 +331,7 @@ function Show-WorkHelpMenu {
     Write-Host "  wnm `"title`"     Create meeting note"
     Write-Host "  wnp `"name`"      Create project"
     Write-Host "  wne `"name`"      Create person file"
+    Write-Host "  wng             Create daily log"
     Write-Host ""
     Write-Host "  Full documentation: ~/work-system/USAGE.md" -ForegroundColor DarkGray
     Write-Host ""
