@@ -316,10 +316,10 @@ function M.new_log()
     local logs = M.work_root .. "/07_logs"
     ensure_dir(logs)
     local filepath = logs .. "/" .. today() .. ".md"
-    
+
     -- Check if file exists
     local exists = vim.fn.filereadable(filepath) == 1
-    
+
     if not exists then
         local day_of_week = os.date("%A")
         local template = string.format([[
@@ -333,7 +333,7 @@ function M.new_log()
             file:close()
         end
     end
-    
+
     vim.cmd("edit " .. filepath)
 end
 
@@ -375,7 +375,7 @@ function M.setup()
     local opts = { noremap = true, silent = true }
 
     -- Ensure Unix line endings for work files
-    vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {
+    vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
         pattern = vim.fn.expand("$HOME/work") .. "/**/*.md",
         callback = function()
             vim.bo.fileformat = "unix"
