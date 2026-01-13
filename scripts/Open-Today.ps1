@@ -153,12 +153,7 @@ function New-DailyNote {
         foreach ($task in $rolledFocus) {
             $focusSection += "$task`n"
         }
-        # Keep empty slots up to 3 total
-        $emptySlots = [Math]::Max(0, 3 - $rolledFocus.Count)
-        for ($i = 0; $i -lt $emptySlots; $i++) {
-            $focusSection += "- [ ] `n"
-        }
-        $template = $template -replace '## Focus\s*\n(?:- \[ \] \n)*(?:- \[ \] )?', $focusSection
+        $template = $template -replace '(?ms)## Focus\s*\n(- \[ \] \n?)*', $focusSection
     }
 
     # Insert rolled Tasks
@@ -167,8 +162,7 @@ function New-DailyNote {
         foreach ($task in $rolledTasks) {
             $taskSection += "$task`n"
         }
-        $taskSection += "- [ ] `n"
-        $template = $template -replace '## Tasks\s*\n- \[ \] \n?', $taskSection
+        $template = $template -replace '(?ms)## Tasks\s*\n(- \[ \] \n?)*', $taskSection
     }
 
     # Insert rolled Follow-ups
@@ -177,8 +171,7 @@ function New-DailyNote {
         foreach ($task in $rolledFollowups) {
             $followupSection += "$task`n"
         }
-        $followupSection += "- [ ] `n"
-        $template = $template -replace '## Follow-ups\s*\n- \[ \] \n?', $followupSection
+        $template = $template -replace '(?ms)## Follow-ups\s*\n(- \[ \] \n?)*', $followupSection
     }
 
     # Write with Unix line endings
